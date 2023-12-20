@@ -16,6 +16,7 @@ func main() {
 	}
 	e.Renderer = cache
 	e.Use(middleware.Logger())
+	e.Static("/dist", "dist")
 	e.GET("/", func(c echo.Context) error {
 		return Render(c, http.StatusOK, Template{View: "hello.html", Layout: "base"})
 	})

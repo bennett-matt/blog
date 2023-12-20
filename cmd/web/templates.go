@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"html/template"
 	"io/fs"
 	"path/filepath"
@@ -34,13 +33,11 @@ func Render(c echo.Context, status int, t Template) error {
 }
 
 func (tc *TemplateCache) Render(w io.Writer, view string, data interface{}, c echo.Context) error {
-	fmt.Println("data: ", data)
 	t, ok := data.(Template)
 	if !ok {
 		return ErrNoTemplate
 	}
 
-	fmt.Println("templates: ", tc.templates)
 	if _, ok := tc.templates[view]; !ok {
 		return ErrTemplateDoesNotExist
 	}
@@ -71,8 +68,6 @@ func NewTemplateRender() (*TemplateCache, error) {
 
 		cache[name] = ts
 	}
-
-	fmt.Println("pages: ", pages)
 
 	return &TemplateCache{templates: cache}, nil
 }
