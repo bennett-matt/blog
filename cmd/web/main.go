@@ -1,24 +1,39 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
+type application struct {
+	tc *TemplateCache
+}
+
 func main() {
-	e := echo.New()
-	cache, err := NewTemplateRender()
+	templateCache, err := NewTemplateRender()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
-	e.Renderer = cache
-	e.Use(middleware.Logger())
-	e.Static("/dist", "dist")
-	e.GET("/", func(c echo.Context) error {
-		return Render(c, http.StatusOK, Template{View: "hello.html", Layout: "base"})
+
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+	app := &application{tc: templateCache}
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		app.render(w, r, Template{View: "hello.html", Layout: "base"})
 	})
-	e.Logger.Fatal(e.Start(":1234"))
+
+	r.Handle("/dist/*", http.StripPrefix("/dist/", http.FileServer(http.Dir("dist"))))
+	http.ListenAndServe(":1234", r)
+}
+
+func (a *application) render(w http.ResponseWriter, r *http.Request, t Template) {
+	template, ok := a.tc.templates[t.View]
+	if !ok {
+		// TODO: handle this
+	}
+
+	template.ExecuteTemplate(w, t.Layout, t.Data)
 }

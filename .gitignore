@@ -25,3 +25,6 @@ dist/
 
 # Node modules from frontend dependencies
 node_modules/
+
+# Build dir for running air
+tmp/
