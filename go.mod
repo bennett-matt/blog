@@ -2,12 +2,13 @@ module github.com/bennett-matt/blog
 
 go 1.21.1
 
-require (
-	github.com/go-chi/chi/v5 v5.0.11
-	github.com/labstack/echo/v4 v4.11.3
-)
+require github.com/labstack/echo/v4 v4.11.3
+
+require github.com/justinas/alice v1.2.0
 
 require (
+	github.com/jmoiron/sqlx v1.3.5
+	github.com/julienschmidt/httprouter v1.3.0
 	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
