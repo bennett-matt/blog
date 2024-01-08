@@ -4,4 +4,4 @@ lint:
 
 .PHONY: dev
 dev:
-	go run cmd/web/*.go
+	air

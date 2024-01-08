@@ -17,15 +17,15 @@ func main() {
 		panic(err)
 	}
 
+	app := &application{tc: templateCache}
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-	app := &application{tc: templateCache}
+	r.Handle("/dist/*", http.StripPrefix("/dist/", http.FileServer(http.Dir("dist"))))
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		app.render(w, r, Template{View: "hello.html", Layout: "base"})
 	})
 
-	r.Handle("/dist/*", http.StripPrefix("/dist/", http.FileServer(http.Dir("dist"))))
 	http.ListenAndServe(":1234", r)
 }
 
