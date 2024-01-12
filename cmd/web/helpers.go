@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/justinas/nosurf"
 )
 
 func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
@@ -79,4 +81,17 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst any
 	}
 
 	return nil
+}
+
+func (app *application) newTemplateData(r *http.Request) TemplateData {
+	return TemplateData{
+		Flash:           "TODO: comeback to me",
+		IsAuthenticated: app.isAuthenticated(r),
+		CSRFToken:       nosurf.Token(r),
+	}
+}
+
+func (app *application) isAuthenticated(r *http.Request) bool {
+	// TODO: come back and add logic for authentication
+	return false
 }

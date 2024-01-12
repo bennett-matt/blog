@@ -1,13 +1,24 @@
 package data
 
-import "github.com/jmoiron/sqlx"
+import (
+	"errors"
+
+	"github.com/jackc/pgx/v5/pgxpool"
+)
+
+var (
+	ErrRecordNotFound = errors.New("record not found")
+	ErrEditConflict   = errors.New("edit conflict")
+)
 
 type Models struct {
-	Users UserModel
+	Users  UserModel
+	Tokens TokenModel
 }
 
-func NewModels(db *sqlx.DB) Models {
+func NewModels(db *pgxpool.Pool) Models {
 	return Models{
-		Users: UserModel{db},
+		Users:  UserModel{db},
+		Tokens: TokenModel{db},
 	}
 }

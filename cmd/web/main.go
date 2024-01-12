@@ -1,15 +1,18 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/bennett-matt/blog/internal/data"
 	"github.com/bennett-matt/blog/internal/jsonlog"
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type config struct {
@@ -49,19 +52,19 @@ func main() {
 	}
 
 	// TODO: implement `openDB`
-	// db, err := openDB(cfg)
-	// if err != nil {
-	// 	logger.Fatal(err)
-	// }
+	db, err := openDB(cfg)
+	if err != nil {
+		logger.PrintFatal(err, nil)
+	}
 
-	// defer db.Close()
-	// logger.Println("database connection pool established")
+	defer db.Close()
+	logger.PrintInfo("database connection pool established", nil)
 
 	app := &application{
 		config: cfg,
 		logger: logger,
-		// models: data.NewModels(db),
-		tc: templateCache,
+		models: data.NewModels(db),
+		tc:     templateCache,
 	}
 
 	svr := &http.Server{
@@ -75,8 +78,35 @@ func main() {
 	logger.PrintFatal(svr.ListenAndServe(), nil)
 }
 
-func openDB(config config) (*sqlx.DB, error) {
-	return nil, nil
+func openDB(cfg config) (*pgxpool.Pool, error) {
+	poolCfg, err := pgxpool.ParseConfig(cfg.db.dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	poolCfg.MaxConns = int32(cfg.db.maxOpenConns)
+	poolCfg.MinConns = int32(cfg.db.maxIdleConns)
+	duration, err := time.ParseDuration(cfg.db.maxIdleTime)
+	if err != nil {
+		return nil, err
+	}
+
+	poolCfg.MaxConnIdleTime = duration
+	poolCfg.BeforeAcquire = func(ctx context.Context, c *pgx.Conn) bool {
+		log.Println("Before acquiring the connection pool to the database!!")
+		return true
+	}
+
+	poolCfg.AfterRelease = func(c *pgx.Conn) bool {
+		log.Println("After releasing the connection pool to the database!!")
+		return true
+	}
+
+	poolCfg.BeforeClose = func(c *pgx.Conn) {
+		log.Println("Closed the connection pool to the database!!")
+	}
+
+	return pgxpool.NewWithConfig(context.Background(), poolCfg)
 }
 
 func (a *application) render(w http.ResponseWriter, r *http.Request, t Template) {

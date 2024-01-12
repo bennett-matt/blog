@@ -18,18 +18,22 @@ var (
 	ErrNoTemplate           = errors.New("not a template")
 )
 
+type TemplateData struct {
+	Form            any
+	Flash           string
+	IsAuthenticated bool
+	CSRFToken       string
+	Data            any
+}
+
 type Template struct {
 	View   string
 	Layout string
-	Data   interface{}
+	Data   TemplateData
 }
 
 type TemplateCache struct {
 	templates map[string]*template.Template
-}
-
-func Render(c echo.Context, status int, t Template) error {
-	return c.Render(status, t.View, t)
 }
 
 func (tc *TemplateCache) Render(w io.Writer, view string, data interface{}, c echo.Context) error {
