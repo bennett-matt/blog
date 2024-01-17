@@ -20,6 +20,9 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/", func(w http.ResponseWriter, r *http.Request) {
 		app.render(w, r, Template{View: "hello.html", Layout: "base"})
 	})
+	router.HandlerFunc(http.MethodGet, "/sessions/new", app.signInHandler)
+	router.HandlerFunc(http.MethodGet, "/sessions/reset", app.resetPasswordHandler)
+	router.HandlerFunc(http.MethodGet, "/users/new", app.userSignupHandler)
 
 	standard := alice.New()
 	return standard.Then(router)

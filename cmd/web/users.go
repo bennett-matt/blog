@@ -9,7 +9,8 @@ type userSignupForm struct {
 	// validator.Validator `form:"-"`
 }
 
-func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {
+func (app *application) userSignupHandler(w http.ResponseWriter, r *http.Request) {
+	app.render(w, r, Template{View: "sign_up.html", Layout: "base"})
 }
 
 func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
